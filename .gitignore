@@ -1,0 +1,8 @@
+.DS_Store
+*.log
+_*
+src/
+pkg/
+*.bak
+*.old
+test/
