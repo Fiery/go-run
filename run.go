@@ -17,8 +17,8 @@ const (
 	Stderr
 	
 	// Shorthand version
-	I = Stdin 
-	O = Stdout 
+	I = Stdin
+	O = Stdout
 	E = Stderr
 
 	None = 0 

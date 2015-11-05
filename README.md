@@ -17,7 +17,7 @@ package main
 
 import (
     "fmt"
-    "github.com/Fiery/go-run"
+    run "github.com/Fiery/go-run"
 )
 
 func main(){
