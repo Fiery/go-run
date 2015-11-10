@@ -35,7 +35,7 @@ func main(){
 
     // Pipe the Stdout (and/or Stderr) to evaluate later
     var output = bytes.Buffer
-    run.Call("echo Just run it!").Pipe(&output, run.Stdout|run.Stderr).Run()
+    run.Call("echo Just run it!").Pipe(run.Stdout|run.Stderr, output).Run()
     fmt.Println(output.String())
 
 
@@ -92,7 +92,7 @@ Can be chained by Pipe( ) to capture Stdout and Stderr or to bind Stdin.
 
 ```go
 var output bytes.Buffer
-run.Shell(`bash`, `echo -n $USER`).Pipe(&output, run.Stdout).Run()
+run.Shell(`bash`, `echo -n $USER`).Pipe(run.Stdout, &output).Run()
 ```
 
 
@@ -144,7 +144,7 @@ Any Runnable can use Pipe to direct its Stdin|Stdout|Stderr to a predefined io.R
 
 ```go
 var output = bytes.NewBuffer(nil)
-run.Call(`GOOS=linux GOARCH=amd64 go build`).Pipe(output, Stdout|Stderr)
+run.Call(`GOOS=linux GOARCH=amd64 go build`).Pipe(run.Stdout|run.Stderr, output)
 ```
 
 
