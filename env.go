@@ -9,8 +9,7 @@ import (
 
 func init(){
 	//flag.Parse()
-	fmt.Println(flag.Args())
- 	Env = makeEnvMap(flag.Args(), false)
+ 	//Env = makeEnvMap(flag.Args(), false)
 }
 
 
