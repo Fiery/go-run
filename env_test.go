@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/Fiery/testify/assert"
 
 )
 
@@ -23,22 +23,21 @@ func init(){
 func TestEnvInitialization(t *testing.T) {
 	// set to os defaults
 	Env = makeEnvMap(os.Environ(), false)
-	Env.Set("USER=$USER:togo")
-	assert.Equal(t, user+":togo", (*Env)["USER"], "Environment interpretation failed")
+	Env.Set("USER=$USER:run")
+	assert.Equal(t, user+":run", (*Env)["USER"], "Environment interpretation failed")
 }
 func TestEnvCombination(t *testing.T){
 	// set to os defaults
 	Env = makeEnvMap(os.Environ(), false)
-	l := len(os.Environ())
 	Env = Env.combine([]string{"USER=$USER:$USER:func"})
 	
 	assert.Equal(t, user+":"+user+":func", (*Env)["USER"], "Should have been overriden by func environment")
 	
-	assert.Equal(t, len(*Env), l, "Consolidated environment length changed.")
+	assert.Equal(t, len(os.Environ()), len(*Env),  "Consolidated environment length changed.")
 
 	Env = Env.combine([]string{"GOSU_NEW_VAR=foo"})
 	assert.Equal(t, "foo", (*Env)["GOSU_NEW_VAR"] , "Should have conslidated Env set")
-	assert.Equal(t,  l+1, len(*Env), "Consolidated environment length should have increased by 1")
+	assert.Equal(t,  len(os.Environ())+1, len(*Env), "Consolidated environment length should have increased by 1")
 
 }
 
@@ -59,18 +58,18 @@ func TestEnvInterpretation(t *testing.T) {
 	Env.Set(`USER1=$USER`,`USER2=$USER1`)
 
 	Env = Env.combine([]string{"USER3=$USER2"})
-	assert.Equal(t, (*Env)["USER1"],user , "Should have been evaluated")
-	assert.Equal(t, (*Env)["USER3"],user , "Should have been evaluated during consolidation.")
+	assert.Equal(t, user, (*Env)["USER1"], "Should have been evaluated")
+	assert.Equal(t, user, (*Env)["USER3"], "Should have been evaluated during consolidation")
 
 	Env = Env.combine([]string{"PATH=foo::bar::bah"})
 	assert.Equal(t, "foo"+string(os.PathListSeparator)+"bar"+string(os.PathListSeparator)+"bah", (*Env)["PATH"], "Should have replaced run.PathSeparator")
 
 	// set back to defaults
 	Env = makeEnvMap(os.Environ(),false)
-	Env.Set(`FOO=foo`,`FAIL=$FOObar:togo`,`OK=${FOO}bar:togo`)
+	Env.Set(`FOO=foo`,`FAIL=$FOObar:run`,`PASS=${FOO}bar:run`)
 
-	assert.Equal(t, ":togo", (*Env)["FAIL"], "$FOObar should have been interpreted as empty string.")
-	assert.Equal(t, "foobar:togo", (*Env)["OK"], "${FOO}bar should have been interpreted accordingly.")
+	assert.Equal(t, ":run", (*Env)["FAIL"], "$FOObar should have been interpreted as empty string.")
+	assert.Equal(t, "foobar:run", (*Env)["PASS"], "${FOO}bar should have been interpreted accordingly.")
 }
 
 func TestPromotion(t *testing.T) {
