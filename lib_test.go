@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"os"
-	"github.com/stretchr/testify/assert"
+	"github.com/Fiery/testify/assert"
 
 )
 
@@ -27,37 +27,8 @@ func TestPrompt(t *testing.T) {
 	}()
 	os.Stdin = r
 
-	w.WriteString("Sample\n")
+	w.WriteString("username\n")
 
-	assert.Equal(t, strings.Trim(Prompt("Please input: "), " "), "Sample")
+	assert.Equal(t, "username", strings.Trim(Prompt("Please input: "), " "))
 
 }
-
-
-/* TODO: @Fiery: Fix below test, now fails on Mac
-
-func TestHiddenPrompt(t *testing.T) {
-
-	stdin:=os.Stdin
-	defer func(){
-		os.Stdin = stdin
-	}()
-	os.Stdin = r
-
-	w.WriteString("Sample\n")
-
-	assert.Equal(t, strings.Trim(PromptHidden("Please input: ")," "), "Sample")
-}
-
-func TestMaskedPrompt(t *testing.T) {
-	stdin:=os.Stdin
-	defer func(){
-		os.Stdin = stdin
-	}()
-	os.Stdin = r
-
-	w.WriteString("Sample\n")
-
-	assert.Equal(t, strings.Trim(PromptMasked("Please input: ")," "), "Sample")
-}
-*/
