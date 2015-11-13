@@ -13,6 +13,7 @@ import (
 
 var cat = "cat"
 func init() {
+	logger.SetOutput(os.Stdout)
 	if runtime.GOOS == "windows" {
 		cat = "type"
 	}
@@ -22,14 +23,14 @@ func init() {
 func TestSingleCommand(t *testing.T) {
 
     var output bytes.Buffer
-	Call(`cat test/foo.txt`).Pipe(Stdout, &output).Run()
-	assert.Equal(t, "foo\n", output.String())
+	Call(`cat test/foo`).Pipe(Stdout, &output).Run()
+	assert.Equal(t, "text from foo\n", output.String())
 }
 
 func TestChain(t *testing.T){
     var output bytes.Buffer
-	Call(`cat test/foo.txt`).Call(`echo hello`).Call(`echo world`).Pipe(Stdout, &output).Run()
-	assert.Equal(t, "foo\nhello\nworld\n", output.String())
+	Call(`cat test/foo`).Call(`echo hello`).Call(`echo world`).Pipe(Stdout, &output).Run()
+	assert.Equal(t, "text from foo\nhello\nworld\n", output.String())
 }
 
 
@@ -37,8 +38,8 @@ func TestChain(t *testing.T){
 func TestMultiCommand(t *testing.T) {
 
     var output bytes.Buffer
-	Call(cat+" test/foo.txt\n"+cat+" test/bar.txt").Pipe(Stdout, &output).Run()
-	assert.Equal(t, "foo\nbar\n", output.String())
+	Call(cat+" test/foo\n"+cat+" test/bar").Pipe(Stdout, &output).Run()
+	assert.Equal(t, "text from foo\nthis is content of bar\n", output.String())
 }
 
 
@@ -58,8 +59,8 @@ func TestWithError(t *testing.T) {
     var output bytes.Buffer
     var error bytes.Buffer
 	status:=Call(`
-		$cat $t/doesnotexist.txt
-		$cat $t/bar.txt
+		$cat $t/doesnotexist
+		$cat $t/bar
 		`).With("t=test","cat=cat").Pipe(Stdout, &output).Pipe(Stderr, &error).Run()
 
 	assert.Error(t, status)
@@ -123,6 +124,10 @@ func TestShell(t *testing.T) {
 		echo -n "fo\"obar"
 	`).Pipe(Stdout, &output).Run()
 	assert.Equal(t,"fo\"obar" , output.String(), "Bash quoted command failed.")
+}
+
+func TestStart(t *testing.T){
+	
 }
 
 
