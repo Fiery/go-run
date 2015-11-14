@@ -9,9 +9,11 @@ import (
 	"time"
 )
 
-// appMap stores all exec.Cmd invoked by user, 
+// appMap stores all exec.Cmd invoked asynchronously
 var appMap = make(map[string]map[time.Time]*exec.Cmd)
 
+var daemonProc sync.WaitGroup
+var workingDir string
 
 type app struct{
 	// extracted arguments
@@ -33,7 +35,8 @@ type syncApp struct {
 
 type asyncApp struct{
 	app
-	wg *sync.WaitGroup
+	err error
+	*sync.WaitGroup
 }
 
 // getCmd returns exec.Cmd
@@ -79,24 +82,29 @@ func (sa *syncApp) Run() error{
 }
 
 
-func (aa *asyncApp) Run() (err error) {
-	aa.wg.Add(1)
-	defer aa.wg.Done()
+func (aa *asyncApp) Run() error {
 	if cmd,err:= aa.getCmd(); err != nil {
 		return err
-	}else if err:= cmd.Start();err != nil {
-		return err
 	}else{
-		if c, ok:= appMap[aa.cmd]; !ok{
-			c= make(map[time.Time]*exec.Cmd)
-			appMap[aa.cmd] = c
-			c[time.Now()] = cmd
-		}else{
-			c[time.Now()] = cmd
-		}
+		go func(){
+			aa.Add(1)
+			defer aa.Done()
+			if err:= cmd.Start();err != nil {
+				aa.err = err
+			}else{
+				// cmd succefully started, record it with timestamps
+				if c, ok:= appMap[aa.cmd]; !ok{
+					c= make(map[time.Time]*exec.Cmd)
+					appMap[aa.cmd] = c
+					c[time.Now()] = cmd
+				}else{
+					c[time.Now()] = cmd
+				}
 
-		logger.Println("Async application added [%q]\n", aa.cmd)
-		//err = cmd.Wait()
+				logger.Println("Async application added [%q]\n", aa.cmd)
+				aa.err =  cmd.Wait()
+			}
+		}()
 		return nil
 	}
 }

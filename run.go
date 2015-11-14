@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"bytes"
 	"io"
+	"log"
+	"io/ioutil"
 	"syscall"
 )
 
@@ -41,6 +43,11 @@ func Start(o string) Runnable{
 	return start(o, nil)
 }
 
+// Wait waits till all preceded async apps finish
+func Wait(){
+	daemonProc.Wait()
+}
+
 // Runnable expose APIs for chainable call structure   
 type Runnable interface{
 	Run() error
@@ -63,11 +70,7 @@ type runner func() error
 
 // Run implements Runnable interface
 func (r runner) Run() error{
-	err:= r()
-
-	waitGroup.Wait()
-
-	return err
+	return r()
 }
 
 // Pipe implements Runnable interface
@@ -103,6 +106,7 @@ func (r runner) At(p string) Runnable{
 }
 
 
+var logger = log.New(ioutil.Discard, "[run] ", log.LstdFlags)
 
 func with(vars []string, run Runnable) Runnable {
 	return runner(func() error {
@@ -280,7 +284,8 @@ func start(command string, run Runnable) Runnable {
 					cmd: line,
 					env: env,
 				},
-				&waitGroup,
+				nil,
+				&daemonProc,
 			}).Run()
 		}
 		return nil
