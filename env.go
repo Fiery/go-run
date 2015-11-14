@@ -48,6 +48,7 @@ func (e *envMap) list() (r []string){
 
 }
 
+// promote promotes a runtime env var to global env set
 func (e *envMap) promote(key string) error{
 	if val, ok:=(*e)[key]; !ok{
 		return fmt.Errorf("Cannot escalate env that are not included in current env map!")

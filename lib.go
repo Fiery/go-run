@@ -1,23 +1,13 @@
 package run
 
 import (
-	"log"
-	"sync"
-	"strings"
 	"fmt"
-	"io/ioutil"
+	"strings"
 	"unicode"
 	"strconv"
 
 	"github.com/howeyc/gopass"
 )
-
-
-
-var logger = log.New(ioutil.Discard, "[togo-run] ", log.LstdFlags)
-
-var waitGroup sync.WaitGroup
-var workingDir string
 
 
 func getQuoteSplitter(sep rune) func(rune) bool{
@@ -67,7 +57,7 @@ func parseCommand(command string) (exe string, arg, env []string) {
 			}
 			env = append(env, item)
 		} else {
-			// end env prefix, return tralling command
+			// end of env prefix, return tralling command
 			exe = item
 			arg = arg[i+1:]
 			return
